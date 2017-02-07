@@ -1,0 +1,36 @@
+Logic of the Code -
+1.	The Code logic for Soccer Analytics project uses two-stage MapReduce processing.
+2.	Manager chooses the required input position (Striker, Midfielder, Defender, Goalkeeper) using the drop down button in UI and clicks the button “Shoot!!!”.
+3.	Main Method then sets the Mapper Class based on the type of player.
+4.	First Stage MapReduce-
+a)	Mapper
+-	Mapper reads the input CSV data file line by line and splits the data by “,” and stores them in a String Array
+-	Mapper consolidates the attribute ratings of individual games for each player and stores them in an Array List.
+-	Average Rating of each player for each game is calculated.
+-	Finally, as per the input position, Mapper outputs as per following format –
+Key - Value = <PlayerID>,<ConsolidatedRating:MarketValue:PlayerName:Position>
+b)	Combiner
+-	Combiner splits the input values from the key-value pair
+-	Then it adds all the individual game average ratings, to calculate Total rating
+-	Finally, Combiner outputs as per following format –
+Key-Value = <PlayerID>,<TotalRating:MarketValue:PlayerName:Position>
+c)	Reducer
+-	Reducer iterates the values from the key-value pair  and splits the data by “:” and stores them in a String Array
+-	It calculates the final average rating for a player across all the games
+-	Then, HashMap soccerMap is created with Key- PlayerID and Value- Final Average Rating
+-	Get the HashMap set and convert the Map to  List
+-	Finally, Reducer outputs as per following format –
+Key - Value = <”->”>,<PlayerID:FinalRating:MarketValue:PlayerName:Position>
+5.	Second Stage MapReduce-
+a)	Mapper
+-	Mapper splits the input value from key-value pair and stores them in a String Array
+-	Finally, Mapper outputs as per following format –
+Key - Value = <Position>,< AverageRating:MarketValue:PlayerName>
+b)	Reducer
+-	HashMap soccerMap2 is created
+-	Reducer iterates the values from the key-value pair and splits the data by “:” and stores them in a String Array
+-	HashMap soccerMap2 is populated with Key- PlayerName:MarketValue and Value- Final Rating
+-	Get the HashMap set and convert the Map to  List
+-	Sort list with comparator, to compare the Map values
+-	The iterate over the list and print output to HDFS and local file in following format 
+Key-Value= <PlayerName:MarketValue>,<Overall Rating>
